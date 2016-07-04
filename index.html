@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>自测瀑布流</title>
+	<style type="text/css">
+	#main{position: relative;margin: 0px auto;}
+	#main div{position: absolute;width: 200px;background: red;transition:0.5s;}
+	.userimg{width: 200px;}
+	</style>
+</head>
+<body>
+	<div id="main">
+
+		<!-- 很多div -->
+	</div>
+</body>
+<script type="text/javascript">
+
+
+	window.onload=function(){
+		var oMain=document.getElementById("main");
+		var heights = [];
+		var divs=[];
+		create(0,20);
+		// var divs=[];创建需要放在调用create函数前面
+
+		
+		function create(n1,n2){
+			for (var i = n1; i < n2; i++) {
+				var oDiv=document.createElement("div");
+				var oImg=document.createElement("img")
+				// oDiv.innerHTML=i;
+				oDiv.style.height=fnRand(100,300)+"px";
+				oMain.appendChild(oDiv);
+				oDiv.appendChild(oImg);
+				// divs=[];
+				divs[i]=oDiv;
+				oImg.src="images/"+fnRand1(1,4)+".jpg";
+				oImg.className="userimg";
+				oImg.style.height=divs[i].offsetHeight+'px';
+				// 注意
+				// oImg.style.height=divs[i].offsetHeight+'px';
+				// oImg.height=divs[i].offsetHeight;
+			};
+			arrange();
+			function fnRand1(m,n){
+				var r1=Math.round(Math.random()*(n-m)+m);
+				return r1;
+
+			}
+		}
+
+		
+	
+		function arrange(){
+			var screenWidth=document.body.offsetWidth;
+			var l=0;
+			var t=0;
+			var isFirst=true;
+			var MainWidth=0;
+			for (var i = 0; i < divs.length; i++) {
+				if (l+divs[i].offsetWidth>=screenWidth) {
+					MainWidth=l;
+					l=0;
+					isFirst=false;
+				};
+				if (isFirst) {
+					divs[i].style.top=t+"px";
+					divs[i].style.left=l+"px";
+					heights[i]=divs[i].offsetHeight;
+				}
+				else{
+					var tmpArray =[];
+						for (var j = 0; j < heights.length; j++) {
+							tmpArray.push(heights[j]);
+						}
+						fnSort(tmpArray);
+						var min=tmpArray[0];
+						for (var k = 0; k <heights.length; k++) {
+							
+						if (min==heights[k]) {
+							var divWidth = divs[i].offsetWidth;
+								divs[i].style.left = k*(divWidth+10)+'px';
+								divs[i].style.top=min+10+'px';
+								heights[k]+=divs[i].offsetHeight+10;
+								break;
+						};
+					}
+				}
+				l+=divs[i].offsetWidth+10;
+			}
+			oMain.style.width = MainWidth + 'px';
+		}
+	
+
+	function fnRand(m,n){
+		var r=Math.round(Math.random()*(n-m)+m);
+		return r;
+
+	}
+	function fnSort(array){
+		for (var i = 0; i < array.length-1; i++) {
+			for (var j = 0; j < array.length-1-i; j++) {
+				if (array[j]>array[j+1]) {
+					var tmp;
+					tmp = array[j];
+					array[j] = array[j+1];
+					array[j+1] = tmp;
+				};
+			};
+		};
+	}
+	window.onresize=function(){
+		heights.splice(0, heights.length)
+		arrange();
+	}
+	window.onscroll=function(){
+		var scrollTop = document.body.scrollTop;
+		var clientHeight = document.documentElement.clientHeight;
+		var tmpArr=[];
+		for (var i = 0; i < heights.length; i++) {
+			tmpArr.push(heights[i]);
+
+		}
+		fnSort(tmpArr);
+		var max=tmpArr[tmpArr.length-1];
+		if (scrollTop+clientHeight>=max-10) {
+			var num=divs.length;
+			create(num,num+20);
+		};
+	}
+}
+</script>
+</html>
